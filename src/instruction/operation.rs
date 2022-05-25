@@ -1,3 +1,4 @@
+#[allow(clippy::upper_case_acronyms)]
 pub enum Operation {
     ADC, AND, ASL, BCC, BCS, BEQ, BIT, BMI,
     BNE, BPL, BRK, BVC, BVS, CLC, CLD, CLI,

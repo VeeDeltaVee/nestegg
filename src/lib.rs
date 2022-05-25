@@ -155,7 +155,7 @@ impl ComputerState {
         let index = status_flag as u8;
         let flag = self.registers.status >> index;
 
-        return (flag & 0x1) != 0;
+        (flag & 0x1) != 0
     }
 
     fn set_status_flag(&mut self, status_flag: StatusFlag, new_flag: bool) {
@@ -169,6 +169,7 @@ impl ComputerState {
         self.set_status_flag(StatusFlag::NEGATIVE, value & (1 << 7) != 0);
     }
 
+    #[allow(clippy::unit_arg)]
     fn execute_operation(&mut self, op: Operation, operand: Operand) -> Result<(), &'static str> {
         match op {
             Operation::ADC => Ok(self.execute_add_with_carry(operand)?),
@@ -279,7 +280,7 @@ impl ComputerState {
     fn get_indirect_x_operand(&mut self) -> (Operand, bool) {
         let address = self.get_byte_from_memory(self.registers.program_counter as usize) as usize;
         let offset = self.registers.x as usize;
-        let pointer_address = (address + offset) & 0xff;
+        let pointer_address = address + offset;
         let pointer = self.get_word_from_memory(pointer_address);
         self.registers.program_counter += 1;
         (Operand::Address(pointer), false)
@@ -298,7 +299,7 @@ impl ComputerState {
 
     fn get_zero_page_operand(&mut self, offset: u8) -> (Operand, bool) {
         let address = self.get_byte_from_memory(self.registers.program_counter as usize);
-        let final_address = (address + offset) & 0xff;
+        let final_address = address + offset;
         self.registers.program_counter += 1;
         (Operand::Address(final_address as u16), false)
     }
@@ -406,12 +407,11 @@ impl ComputerState {
 
     fn execute_increment(&mut self, operand: Operand, negate: bool) -> Result<(), &'static str> {
         let operand_value = self.get_operand_value(operand)?;
-        let result;
-        if negate {
-            result = operand_value.wrapping_sub(1);
+        let result = if negate {
+            operand_value.wrapping_sub(1)
         } else {
-            result = operand_value.wrapping_add(1);
-        }
+            operand_value.wrapping_add(1)
+        };
 
         self.set_zero_and_negative_flags(result);
         self.set_operand_value(operand, result)?;
@@ -420,12 +420,11 @@ impl ComputerState {
     }
 
     fn execute_increment_x(&mut self, negate: bool) -> Result<(), &'static str> {
-        let result;
-        if negate {
-            result = self.registers.x.wrapping_sub(1);
+        let result = if negate {
+            self.registers.x.wrapping_sub(1)
         } else {
-            result = self.registers.x.wrapping_add(1);
-        }
+            self.registers.x.wrapping_add(1)
+        };
 
         self.set_zero_and_negative_flags(result);
         self.registers.x = result;
@@ -434,12 +433,11 @@ impl ComputerState {
     }
 
     fn execute_increment_y(&mut self, negate: bool) -> Result<(), &'static str> {
-        let result;
-        if negate {
-            result = self.registers.y.wrapping_sub(1);
+        let result = if negate {
+            self.registers.y.wrapping_sub(1)
         } else {
-            result = self.registers.y.wrapping_add(1);
-        }
+            self.registers.y.wrapping_add(1)
+        };
 
         self.set_zero_and_negative_flags(result);
         self.registers.y = result;
