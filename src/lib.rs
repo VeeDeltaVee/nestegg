@@ -271,7 +271,7 @@ impl ComputerState {
 
     fn get_indirect_operand(&mut self) -> (Operand, bool) {
         let pointer_address =
-        self.get_word_from_memory(self.registers.program_counter as usize) as usize;
+            self.get_word_from_memory(self.registers.program_counter as usize) as usize;
         let pointer = self.get_word_from_memory(pointer_address) as u16;
         self.registers.program_counter += 2;
         (Operand::Address(pointer), false)
@@ -280,7 +280,7 @@ impl ComputerState {
     fn get_indirect_x_operand(&mut self) -> (Operand, bool) {
         let address = self.get_byte_from_memory(self.registers.program_counter as usize) as usize;
         let offset = self.registers.x as usize;
-        let pointer_address = address + offset;
+        let pointer_address = (address + offset) & 0xff;
         let pointer = self.get_word_from_memory(pointer_address);
         self.registers.program_counter += 1;
         (Operand::Address(pointer), false)
@@ -323,7 +323,7 @@ impl ComputerState {
         let accumulator_positive: bool = !is_negative(accumulator as u8);
         let sum_positive: bool = !is_negative(sum as u8);
         let overflow: bool =
-        (byte_positive == accumulator_positive) && (sum_positive != byte_positive);
+            (byte_positive == accumulator_positive) && (sum_positive != byte_positive);
         self.set_status_flag(StatusFlag::OVERFLOW, overflow);
 
         self.set_zero_and_negative_flags(sum as u8);
@@ -587,7 +587,7 @@ impl ComputerState {
         let accumulator_positive: bool = !is_negative(accumulator as u8);
         let sum_positive: bool = !is_negative(result);
         let overflow: bool =
-        (byte_positive != accumulator_positive) && (sum_positive == byte_positive);
+            (byte_positive != accumulator_positive) && (sum_positive == byte_positive);
         self.set_status_flag(StatusFlag::OVERFLOW, overflow);
 
         self.set_zero_and_negative_flags(result);
